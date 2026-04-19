@@ -7,8 +7,8 @@ export async function GET() {
 
   // создаём тестовый документ
   const doc = await Media.create({
-    title: 'Тестовый мем',
-    tags: ['тест', 'галычане'],
+    title: 'Test Media',
+    tags: ['test', 'galychane'],
     type: 'image',
     url: 'https://example.com/test.jpg',
   });
