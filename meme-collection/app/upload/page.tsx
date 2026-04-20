@@ -4,20 +4,36 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MediaDropzone from '@/components/MediaDropzone';
+
+type MediaType = 'image' | 'video' | 'gif';
 
 export default function UploadPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [mediaType, setMediaType] = useState<MediaType | null>(null);
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
-  const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  function handleFileAccepted(f: File, type: MediaType) {
+    setFile(f);
+    setMediaType(type);
+    setStatus('idle');
+  }
+
+  function handleFileRemoved() {
+    setFile(null);
+    setMediaType(null);
+    setStatus('idle');
+  }
 
   async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
-    if (!file) return;
+    if (!file || !mediaType) return;
 
     setStatus('loading');
 
-    // TODO: Upload a file to Cloudinary, get the URL
+    // TODO: Upload file to Cloudinary, get the URL
     // TODO: POST /api/media with { title, tags, type, url, cloudinaryId }
     await new Promise((r) => setTimeout(r, 800));
 
@@ -32,15 +48,10 @@ export default function UploadPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div>
-              <label className="text-sm font-medium mb-1 block">File</label>
-              <Input
-                type="file"
-                accept="image/*,video/*,.gif"
-                required
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              />
-            </div>
+            <MediaDropzone
+              onFileAccepted={handleFileAccepted}
+              onFileRemoved={handleFileRemoved}
+            />
 
             <div>
               <label className="text-sm font-medium mb-1 block">Description</label>
@@ -68,7 +79,7 @@ export default function UploadPage() {
               <p className="text-sm text-red-600">Error occurred while uploading</p>
             )}
 
-            <Button type="submit" disabled={status === 'loading'}>
+            <Button type="submit" disabled={!file || status === 'loading'}>
               {status === 'loading' ? 'Uploading...' : 'Upload'}
             </Button>
           </form>

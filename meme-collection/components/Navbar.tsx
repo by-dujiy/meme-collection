@@ -5,14 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MagnifyingGlass, Plus, User } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon, PlusIcon, UserIcon } from '@phosphor-icons/react';
 
 export default function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
 
-  function handleSearch(e: React.FormEvent) {
+  function handleSearch(e: React.SubmitEvent) {
     e.preventDefault();
     router.push(query.trim() ? `/?q=${encodeURIComponent(query.trim())}` : '/');
   }
@@ -26,26 +26,26 @@ export default function Navbar() {
 
         <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
           <div className="relative flex-1">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Поиск..."
+              placeholder="Search..."
               className="pl-9"
             />
           </div>
-          <Button type="submit" size="sm">Найти</Button>
+          <Button type="submit" size="sm">Search</Button>
         </form>
 
         <div className="flex items-center gap-2 shrink-0">
           <Link href="/upload">
             <Button size="icon" variant="ghost">
-              <Plus size={20} />
+              <PlusIcon size={20} />
             </Button>
           </Link>
           <Link href="/auth/register">
             <Button size="icon" variant="ghost">
-              <User size={20} />
+              <UserIcon size={20} />
             </Button>
           </Link>
         </div>
