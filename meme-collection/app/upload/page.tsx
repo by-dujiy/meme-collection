@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MediaDropzone from '@/components/MediaDropzone';
+import { uploadToCloudinary } from '@/lib/cloudinary-uploader';
 
-type MediaType = 'image' | 'video' | 'gif';
+type MediaType = 'image' | 'video' | 'gif' | null;
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -33,11 +34,31 @@ export default function UploadPage() {
 
     setStatus('loading');
 
-    // TODO: Upload file to Cloudinary, get the URL
-    // TODO: POST /api/media with { title, tags, type, url, cloudinaryId }
-    await new Promise((r) => setTimeout(r, 800));
+    try {
+      const { url, publicId } = await uploadToCloudinary(file, mediaType);
 
-    setStatus('success');
+      const res = await fetch('api/media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+          type: mediaType,
+          url,
+          cloudinaryId: publicId
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to save');
+      
+      setStatus('success');
+      setFile(null);
+      setMediaType(null);
+      setTitle('');
+      setTags('');
+    } catch {
+      setStatus('error');
+    }
   }
 
   return (
